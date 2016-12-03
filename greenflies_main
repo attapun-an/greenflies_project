@@ -1,0 +1,14 @@
+def menu():
+    select = True
+    options = ["Set Generation 0 values", "Display Generation 0 Values"
+                  , "Run model", "Export Data", "Quit"]
+    while select == True:
+        for i in options:
+            print("[{0:<2}] {0:<20}".format(i, options[i]))
+menu()
+
+
+
+
+
+
