@@ -1,14 +1,29 @@
 def menu():
     select = True
-    options = ["Set Generation 0 values", "Display Generation 0 Values"
-                  , "Run model", "Export Data", "Quit"]
-    while select == True:
-        for i in options:
-            print("[{0:<2}] {0:<20}".format(i, options[i]))
+    options = ["Set Generation 0 values", "Display Generation 0 Values", "Run model", "Export Data", "Quit"]
+    while select:
+        # prints options
+        menu_display(options)
+        user_input_checker = True
+        while user_input_checker:
+            user_input = input(">")
+            try:
+                user_input = int(user_input)
+                if 0 < user_input < len(options)+1:
+                    user_input_checker = False
+                else:
+                    print("Invalid option")
+
+            except ValueError:
+                print("Please input a number")
+
+        if user_input == 5:
+            select = False
+
+
+def menu_display(options):
+    for i in range(len(options)):
+        print('{0} {1}'.format(str(i+1), options[i]))
+
+
 menu()
-
-
-
-
-
-
