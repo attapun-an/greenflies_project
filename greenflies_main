@@ -4,6 +4,7 @@
 # Logic
 
 def main():
+    import os
     menu = True
     options = ["Set Generation 0 values", "Display Generation 0 Values", "Run model", "Export Data", "Quit"]
     setup_incomplete = """Generation 0 values have not been set, please set up the values
@@ -44,10 +45,11 @@ def main():
             except UnboundLocalError:
                 print(setup_incomplete)
 
+        elif user_input == 4:
+            existance_check(input("Please enter a file name: "))
 
 
 
-        # elif user_input == 4:
 
         elif user_input == 5:
             menu = False
@@ -236,6 +238,12 @@ def generation_0_setup(pop_lb, pop_ub):
 
     return (juvenile_population, adult_population, senile_population, juvenile_survival_rate
             , adult_survival_rate, senile_survival_rate, birth_rate, new_generations_modelled, disease_threshold)
+
+def existance_check(file_name):
+
+
+def write_file(file_name):
+
 
 
 def run_model(juvenile_population, adult_population, senile_population, juvenile_survival_rate, adult_survival_rate,
