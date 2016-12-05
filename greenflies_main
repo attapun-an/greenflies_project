@@ -26,10 +26,10 @@ def main():
         if user_input == 1:
             pop_lower_bound = 0
             pop_upper_bound = 100
-            juvenile_pop, adult_pop, senile_pop, juvenile_survival_rate, adult_survival_rate,\
-            senile_survival_rate, birth_rate, new_generations_modelled = generation_0_setup(pop_lower_bound, pop_upper_bound)
+            juvenile_pop, adult_pop, senile_pop, juvenile_survival_rate, adult_survival_rate, senile_survival_rate, birth_rate, new_generations_modelled, disease_threshold = generation_0_setup(
+                pop_lower_bound, pop_upper_bound)
             gen_0_display(juvenile_pop, adult_pop, senile_pop, juvenile_survival_rate, adult_survival_rate,
-            senile_survival_rate, birth_rate, new_generations_modelled)
+                          senile_survival_rate, birth_rate, new_generations_modelled, disease_threshold)
 
         elif user_input == 2:
             try:
@@ -37,24 +37,17 @@ def main():
                 senile_survival_rate, birth_rate, new_generations_modelled)
             except UnboundLocalError:
                 print(setup_incomplete)
-
         elif user_input == 3:
-            setup_check = True
-            while setup_check:
-                try:
-                    gen_0_display(juvenile_pop, adult_pop, senile_pop, juvenile_survival_rate, adult_survival_rate,
-                senile_survival_rate, birth_rate, new_generations_modelled)
-                except UnboundLocalError:
-                    print(setup_incomplete)
+            try:
+                run_model(juvenile_pop, adult_pop, senile_pop, juvenile_survival_rate, adult_survival_rate, senile_survival_rate, birth_rate, new_generations_modelled, disease_threshold)
 
-            run_model(juvenile_pop, adult_pop, senile_pop, juvenile_survival_rate, adult_survival_rate,
-            senile_survival_rate, birth_rate, new_generations_modelled)
+            except UnboundLocalError:
+                print(setup_incomplete)
 
 
 
 
         # elif user_input == 4:
-
 
         elif user_input == 5:
             menu = False
@@ -64,8 +57,9 @@ def menu_display(options):
     for i in range(len(options)):
         print('{0} {1}'.format(str(i + 1), options[i]))
 
+
 def gen_0_display(juvenile_pop, adult_pop, senile_pop, juvenile_survival_rate, adult_survival_rate,
-                  senile_survival_rate,  birth_rate, new_generations_modelled):
+                  senile_survival_rate, birth_rate, new_generations_modelled, disease_threshold):
     print("""
             Juveniles: {0}
             Adults: {1}
@@ -75,10 +69,17 @@ def gen_0_display(juvenile_pop, adult_pop, senile_pop, juvenile_survival_rate, a
             Adult survival rate: {4}
             Senile survival rate: {5}
 
-            Birth_rate: {6}
+            Birth rate: {6}
+            Disease threshold: {8}
             Number of generations to model: {7}
             """.format(juvenile_pop, adult_pop, senile_pop, juvenile_survival_rate, adult_survival_rate,
-                       senile_survival_rate, birth_rate, new_generations_modelled))
+                       senile_survival_rate, birth_rate, new_generations_modelled, disease_threshold))
+
+
+def genX_display(counter, juvenile_pop, adult_pop, senile_pop):
+    total_pop = juvenile_pop + adult_pop + senile_pop
+    print("Generation:{4} {0:<12} {1:<12} {2:<12} {3:<12}".format(juvenile_pop, adult_pop, senile_pop, total_pop,
+                                                                  counter))
 
 
 def integer_checker2(user_inp, lower_bound, upper_bound, error_message):
@@ -90,8 +91,6 @@ def integer_checker2(user_inp, lower_bound, upper_bound, error_message):
             print(error_message)
     except ValueError:
         print(error_message)
-
-
 
 
 """
@@ -108,6 +107,7 @@ def generation_0_setup2():
 
 def generation_0_setup(pop_lb, pop_ub):
     # error message for integers out of range
+    global juvenile_population, adult_population, juvenile_survival_rate, adult_survival_rate, senile_population, senile_survival_rate, birth_rate, new_generations_modelled
     error_message = "Please input a value between {0} and {1}".format(pop_lb, pop_ub)
     # non integer input error
     error_message_2 = "Invalid input"
@@ -162,7 +162,7 @@ def generation_0_setup(pop_lb, pop_ub):
         try:
             juvenile_survival_rate = int(juvenile_survival_rate)
             if 0 <= juvenile_survival_rate <= 100:
-                juvenile_survival_rate = juvenile_survival_rate / 100
+                juvenile_survival_rate /= 100
                 juvenile_sr_check = False
             else:
                 print(error_message_3)
@@ -176,7 +176,7 @@ def generation_0_setup(pop_lb, pop_ub):
         try:
             adult_survival_rate = int(adult_survival_rate)
             if 0 <= adult_survival_rate <= 100:
-                adult_survival_rate = adult_survival_rate/100
+                adult_survival_rate /= 100
                 adult_sr_check = False
             else:
                 print(error_message_3)
@@ -184,23 +184,18 @@ def generation_0_setup(pop_lb, pop_ub):
         except ValueError:
             print(error_message_2)
 
-    senile_sr_check = False
+    senile_sr_check = True
     while senile_sr_check:
         senile_survival_rate = input("Senile survival percentage: ")
         try:
             senile_survival_rate = int(senile_survival_rate)
             if 0 <= senile_survival_rate <= 100:
-                senile_survival_rate = senile_survival_rate/100
+                senile_survival_rate /= 100
                 senile_sr_check = False
-            else: print(error_message_3)
+            else:
+                print(error_message_3)
         except ValueError:
             print(error_message_2)
-
-
-
-
-
-
 
     br_check = True
     while br_check:
@@ -211,6 +206,19 @@ def generation_0_setup(pop_lb, pop_ub):
                 br_check = False
             else:
                 print(error_message_4)
+        except ValueError:
+            print(error_message_2)
+
+    disease_check = True
+    while disease_check:
+        disease_threshold = input("Disease factor threshold: ")
+        try:
+            disease_threshold = int(disease_threshold)
+            if 0 <= disease_threshold:
+                disease_check = False
+            else:
+                print(error_message_4)
+
         except ValueError:
             print(error_message_2)
 
@@ -227,29 +235,31 @@ def generation_0_setup(pop_lb, pop_ub):
             print(error_message_2)
 
     return (juvenile_population, adult_population, senile_population, juvenile_survival_rate
-            , adult_survival_rate, senile_survival_rate, birth_rate,new_generations_modelled)
+            , adult_survival_rate, senile_survival_rate, birth_rate, new_generations_modelled, disease_threshold)
+
 
 def run_model(juvenile_population, adult_population, senile_population, juvenile_survival_rate, adult_survival_rate,
               senile_survival_rate, birth_rate,
-            new_generations_modelled):
-    for i in range(new_generations_modelled):
-        senile_population = senile_population * senile_survival_rate
+              new_generations_modelled, disease_threshold):
+    import random
+
+    for i in range(0, new_generations_modelled+1):
+
+        total_population = senile_population + adult_population + juvenile_population
+        print("{0:<12} {1:<12} {2:<12} {3:<12} {4:<12}".format(i, juvenile_population, adult_population, senile_population, total_population))
+
+        if total_population > disease_threshold:
+            disease_factor = random.randint(20, 50)
+            disease_factor /= 100
+        else:
+            disease_factor = 1
+
+        senile_population = senile_population * senile_survival_rate * disease_factor
         adult_population = adult_population * adult_survival_rate
-        juvenile_population = juvenile_population * juvenile_survival_rate
+        juvenile_population = juvenile_population * juvenile_survival_rate * disease_factor
 
         senile_population = adult_population
         adult_population = juvenile_population
-        juvenile_population = adult_population * birth_rate
-
-        
-
-
-
-
-
-
-
-
-
+        juvenile_population = senile_population * birth_rate
 
 main()
