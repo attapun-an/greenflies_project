@@ -5,8 +5,9 @@
 
 def main():
     menu = True
-    edited = False
     options = ["Set Generation 0 values", "Display Generation 0 Values", "Run model", "Export Data", "Quit"]
+    setup_incomplete = """Generation 0 values have not been set, please set up the values
+                    before attempting this action"""
     while menu:
         # prints options
         menu_display(options)
@@ -25,23 +26,59 @@ def main():
         if user_input == 1:
             pop_lower_bound = 0
             pop_upper_bound = 100
-            juvenile_pop, adult_pop, senile_pop, survival_rate, birth_rate, new_generations_modelled, edited = generation_0_setup(pop_lower_bound, pop_upper_bound)
-            print("""
-            Juveniles: {0}
-            Adults: {1}
-            Seniors: {2}
+            juvenile_pop, adult_pop, senile_pop, juvenile_survival_rate, adult_survival_rate,\
+            senile_survival_rate, birth_rate, new_generations_modelled = generation_0_setup(pop_lower_bound, pop_upper_bound)
+            gen_0_display(juvenile_pop, adult_pop, senile_pop, juvenile_survival_rate, adult_survival_rate,
+            senile_survival_rate, birth_rate, new_generations_modelled)
 
-            Survival_rate: {3}
-            Birth_rate: {4}
-            Number of generations to model: {5}
-            """.format(juvenile_pop, adult_pop, senile_pop, survival_rate, birth_rate, new_generations_modelled)
-        if user_input == 5:
+        elif user_input == 2:
+            try:
+                gen_0_display(juvenile_pop, adult_pop, senile_pop, juvenile_survival_rate, adult_survival_rate,
+                senile_survival_rate, birth_rate, new_generations_modelled)
+            except UnboundLocalError:
+                print(setup_incomplete)
+
+        elif user_input == 3:
+            setup_check = True
+            while setup_check:
+                try:
+                    gen_0_display(juvenile_pop, adult_pop, senile_pop, juvenile_survival_rate, adult_survival_rate,
+                senile_survival_rate, birth_rate, new_generations_modelled)
+                except UnboundLocalError:
+                    print(setup_incomplete)
+
+            run_model(juvenile_pop, adult_pop, senile_pop, juvenile_survival_rate, adult_survival_rate,
+            senile_survival_rate, birth_rate, new_generations_modelled)
+
+
+
+
+        # elif user_input == 4:
+
+
+        elif user_input == 5:
             menu = False
 
 
 def menu_display(options):
     for i in range(len(options)):
         print('{0} {1}'.format(str(i + 1), options[i]))
+
+def gen_0_display(juvenile_pop, adult_pop, senile_pop, juvenile_survival_rate, adult_survival_rate,
+                  senile_survival_rate,  birth_rate, new_generations_modelled):
+    print("""
+            Juveniles: {0}
+            Adults: {1}
+            Seniors: {2}
+
+            Juvenile survival rate: {3}
+            Adult survival rate: {4}
+            Senile survival rate: {5}
+
+            Birth_rate: {6}
+            Number of generations to model: {7}
+            """.format(juvenile_pop, adult_pop, senile_pop, juvenile_survival_rate, adult_survival_rate,
+                       senile_survival_rate, birth_rate, new_generations_modelled))
 
 
 def integer_checker2(user_inp, lower_bound, upper_bound, error_message):
@@ -54,7 +91,7 @@ def integer_checker2(user_inp, lower_bound, upper_bound, error_message):
     except ValueError:
         print(error_message)
 
-        # set up initial generation 0 values
+
 
 
 """
@@ -118,20 +155,52 @@ def generation_0_setup(pop_lb, pop_ub):
         except ValueError:
             print(error_message_2)
 
-    sr_check = True
-    while sr_check:
+    juvenile_sr_check = True
+    while juvenile_sr_check:
         # survival rate is in percentage
-        survival_rate = input("Survival percentage: ")
+        juvenile_survival_rate = input("Juvenile survival percentage: ")
         try:
-            survival_rate = int(survival_rate)
-            if 0 <= survival_rate <= 100:
-                survival_rate = survival_rate / 100
-                sr_check = False
+            juvenile_survival_rate = int(juvenile_survival_rate)
+            if 0 <= juvenile_survival_rate <= 100:
+                juvenile_survival_rate = juvenile_survival_rate / 100
+                juvenile_sr_check = False
             else:
                 print(error_message_3)
 
         except ValueError:
             print(error_message_2)
+
+    adult_sr_check = True
+    while adult_sr_check:
+        adult_survival_rate = input("Adult survival percentage: ")
+        try:
+            adult_survival_rate = int(adult_survival_rate)
+            if 0 <= adult_survival_rate <= 100:
+                adult_survival_rate = adult_survival_rate/100
+                adult_sr_check = False
+            else:
+                print(error_message_3)
+
+        except ValueError:
+            print(error_message_2)
+
+    senile_sr_check = False
+    while senile_sr_check:
+        senile_survival_rate = input("Senile survival percentage: ")
+        try:
+            senile_survival_rate = int(senile_survival_rate)
+            if 0 <= senile_survival_rate <= 100:
+                senile_survival_rate = senile_survival_rate/100
+                senile_sr_check = False
+            else: print(error_message_3)
+        except ValueError:
+            print(error_message_2)
+
+
+
+
+
+
 
     br_check = True
     while br_check:
@@ -149,16 +218,38 @@ def generation_0_setup(pop_lb, pop_ub):
     while new_gen_model_check:
         new_generations_modelled = input("Number of generations to Model : ")
         try:
-            new_generations_modelled = float(new_generations_modelled)
-            if 5 < new_generations_modelled < 25:
+            new_generations_modelled = int(new_generations_modelled)
+            if 5 <= new_generations_modelled <= 25:
                 new_gen_model_check = False
             else:
                 print(error_message_5)
         except ValueError:
             print(error_message_2)
 
-    return (juvenile_population, adult_population, senile_population, survival_rate, birth_rate,
-            new_generations_modelled, True)
+    return (juvenile_population, adult_population, senile_population, juvenile_survival_rate
+            , adult_survival_rate, senile_survival_rate, birth_rate,new_generations_modelled)
+
+def run_model(juvenile_population, adult_population, senile_population, juvenile_survival_rate, adult_survival_rate,
+              senile_survival_rate, birth_rate,
+            new_generations_modelled):
+    for i in range(new_generations_modelled):
+        senile_population = senile_population * senile_survival_rate
+        adult_population = adult_population * adult_survival_rate
+        juvenile_population = juvenile_population * juvenile_survival_rate
+
+        senile_population = adult_population
+        adult_population = juvenile_population
+        juvenile_population = adult_population * birth_rate
+
+        
+
+
+
+
+
+
+
+
 
 
 main()
