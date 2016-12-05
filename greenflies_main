@@ -1,7 +1,13 @@
-def menu():
-    select = True
+# Variables
+
+
+# Logic
+
+def main():
+    menu = True
+    edited = False
     options = ["Set Generation 0 values", "Display Generation 0 Values", "Run model", "Export Data", "Quit"]
-    while select:
+    while menu:
         # prints options
         menu_display(options)
         user_input_checker = True
@@ -9,21 +15,150 @@ def menu():
             user_input = input(">")
             try:
                 user_input = int(user_input)
-                if 0 < user_input < len(options)+1:
+                if 0 < user_input < len(options) + 1:
                     user_input_checker = False
                 else:
                     print("Invalid option")
 
             except ValueError:
                 print("Please input a number")
+        if user_input == 1:
+            pop_lower_bound = 0
+            pop_upper_bound = 100
+            juvenile_pop, adult_pop, senile_pop, survival_rate, birth_rate, new_generations_modelled, edited = generation_0_setup(pop_lower_bound, pop_upper_bound)
+            print("""
+            Juveniles: {0}
+            Adults: {1}
+            Seniors: {2}
 
+            Survival_rate: {3}
+            Birth_rate: {4}
+            Number of generations to model: {5}
+            """.format(juvenile_pop, adult_pop, senile_pop, survival_rate, birth_rate, new_generations_modelled)
         if user_input == 5:
-            select = False
+            menu = False
 
 
 def menu_display(options):
     for i in range(len(options)):
-        print('{0} {1}'.format(str(i+1), options[i]))
+        print('{0} {1}'.format(str(i + 1), options[i]))
 
 
-menu()
+def integer_checker2(user_inp, lower_bound, upper_bound, error_message):
+    try:
+        user_input = int(user_inp)
+        if lower_bound < user_input < upper_bound:
+            return user_input, False
+        else:
+            print(error_message)
+    except ValueError:
+        print(error_message)
+
+        # set up initial generation 0 values
+
+
+"""
+def generation_0_setup2():
+    juvenile_checker = True
+    while juvenile_checker:
+        juvenile_population = input("Juvenile: ")
+        juvenile_population, juvenile_checker = integer_checker2(juvenile_population, pop_lower_bound, pop_upper_bound, "Invalid Input")
+        adult_population = input("Adult: ")
+
+        senile_population = input("Senile: ")
+"""
+
+
+def generation_0_setup(pop_lb, pop_ub):
+    # error message for integers out of range
+    error_message = "Please input a value between {0} and {1}".format(pop_lb, pop_ub)
+    # non integer input error
+    error_message_2 = "Invalid input"
+    # error message for integers out of range (percentile)
+    error_message_3 = "Please input a value between {0} and {1}".format("0", "100")
+    # greater than 0
+    error_message_4 = "Please input a value greater than 0"
+    # 5 and 25
+    error_message_5 = "Please input a value between 5 and 25"
+
+    juvenile_check = True
+    while juvenile_check:
+        juvenile_population = input("Juvenile: ")
+        try:
+            juvenile_population = int(juvenile_population)
+            if pop_lb < juvenile_population < pop_ub:
+                juvenile_check = False
+            else:
+                print(error_message)
+        except ValueError:
+            print(error_message_2)
+
+    adult_check = True
+    while adult_check:
+        adult_population = input("Adult: ")
+        try:
+            adult_population = int(adult_population)
+            if pop_lb < adult_population < pop_ub:
+                adult_check = False
+            else:
+                print(error_message)
+
+        except ValueError:
+            print(error_message_2)
+
+    senile_check = True
+    while senile_check:
+        senile_population = input("Senile: ")
+        try:
+            senile_population = int(senile_population)
+            if pop_lb < senile_population < pop_ub:
+                senile_check = False
+            else:
+                print(error_message)
+        except ValueError:
+            print(error_message_2)
+
+    sr_check = True
+    while sr_check:
+        # survival rate is in percentage
+        survival_rate = input("Survival percentage: ")
+        try:
+            survival_rate = int(survival_rate)
+            if 0 <= survival_rate <= 100:
+                survival_rate = survival_rate / 100
+                sr_check = False
+            else:
+                print(error_message_3)
+
+        except ValueError:
+            print(error_message_2)
+
+    br_check = True
+    while br_check:
+        birth_rate = input("Birth rate: ")
+        try:
+            birth_rate = float(birth_rate)
+            if birth_rate > 0:
+                br_check = False
+            else:
+                print(error_message_4)
+        except ValueError:
+            print(error_message_2)
+
+    new_gen_model_check = True
+    while new_gen_model_check:
+        new_generations_modelled = input("Number of generations to Model : ")
+        try:
+            new_generations_modelled = float(new_generations_modelled)
+            if 5 < new_generations_modelled < 25:
+                new_gen_model_check = False
+            else:
+                print(error_message_5)
+        except ValueError:
+            print(error_message_2)
+
+    return (juvenile_population, adult_population, senile_population, survival_rate, birth_rate,
+            new_generations_modelled, True)
+
+
+main()
