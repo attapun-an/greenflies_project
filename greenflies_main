@@ -1,11 +1,9 @@
-# Variables
-
-
+# Import
+import os
+import random
 # Logic
 
 def main():
-    import os
-    import random
     menu = True
     options = ["Set Generation 0 values", "Display Generation 0 Values", "Run model", "Export Data", "Quit"]
     setup_incomplete = """Generation 0 values have not been set, please set up the values
@@ -36,7 +34,7 @@ def main():
         elif user_input == 2:
             try:
                 gen_0_display(juvenile_pop, adult_pop, senile_pop, juvenile_survival_rate, adult_survival_rate,
-                senile_survival_rate, birth_rate, new_generations_modelled)
+                senile_survival_rate, birth_rate, new_generations_modelled, disease_threshold)
             except UnboundLocalError:
                 print(setup_incomplete)
         elif user_input == 3:
@@ -50,7 +48,7 @@ def main():
             """
             existance_check(input("Please enter a file name: "))
             """
-
+            """
             fake_file = True
             while fake_file:
                 name = input("Please enter a file name: ")
@@ -63,6 +61,8 @@ def main():
                 else:
                     print("File has definitely been created and is working")
                     fake_file = False
+            """
+            export_data()
 
         elif user_input == 5:
             menu = False
@@ -138,7 +138,7 @@ def generation_0_setup(pop_lb, pop_ub):
         juvenile_population = input("Juvenile: ")
         try:
             juvenile_population = int(juvenile_population)
-            if pop_lb < juvenile_population < pop_ub:
+            if pop_lb <= juvenile_population <= pop_ub:
                 juvenile_check = False
             else:
                 print(error_message)
@@ -150,7 +150,7 @@ def generation_0_setup(pop_lb, pop_ub):
         adult_population = input("Adult: ")
         try:
             adult_population = int(adult_population)
-            if pop_lb < adult_population < pop_ub:
+            if pop_lb <= adult_population <= pop_ub:
                 adult_check = False
             else:
                 print(error_message)
@@ -163,7 +163,7 @@ def generation_0_setup(pop_lb, pop_ub):
         senile_population = input("Senile: ")
         try:
             senile_population = int(senile_population)
-            if pop_lb < senile_population < pop_ub:
+            if pop_lb <= senile_population <= pop_ub:
                 senile_check = False
             else:
                 print(error_message)
@@ -279,8 +279,67 @@ def run_model(juvenile_population, adult_population, senile_population, juvenile
         adult_population = adult_population * adult_survival_rate
         juvenile_population = juvenile_population * juvenile_survival_rate * disease_factor
 
-        senile_population = adult_population
+        senile_population = adult_population + senile_population
+        adult_temp = adult_population
         adult_population = juvenile_population
-        juvenile_population = senile_population * birth_rate
+        juvenile_population = adult_temp * birth_rate
 
 main()
+
+def export_data(juvenile_population, adult_population, senile_population, juvenile_survival_rate, adult_survival_rate,
+              senile_survival_rate, birth_rate,
+              new_generations_modelled, disease_threshold):
+    import random
+    import os
+    header = ["[generation]", "[juveniles]", "[adults]", "[seniles]", "[total]"]
+    export = True
+    while export:
+        file_name = input("Please enter name of file: ")
+        file_name = file_name + ".csv"
+        check = os.path.exists("./" + file_name)
+        if check == False:
+            file = open(file_name, "a")
+            file.write(header)
+            for i in range (new_generations_modelled + 1):
+                total_population = juvenile_population + adult_population + senile_population
+                if total_population > disease_threshold:
+                    disease_factor = random.randint(20, 50)
+                    disease_factor /= 100
+                else:
+                    disease_factor = 1
+
+                senile_population = senile_population * senile_survival_rate * disease_factor
+                adult_population = adult_population * adult_survival_rate
+                juvenile_population = juvenile_population * juvenile_survival_rate * disease_factor
+
+                senile_population = adult_population + senile_population
+                adult_temp = adult_population
+                adult_population = juvenile_population
+                juvenile_population = adult_temp * birth_rate
+
+                file.write(str(i) + "," + str(juvenile_population) + "," + str(adult_population) + "," + str(senile_population) + "," + str(total_population) + "\n")
+                export = False
+        else:
+            overwrite = input("File already exist, would you like to ovewrite it [Y/N] ")
+            if overwrite.lower() == "Y":
+                file = open(file_name,"w")
+                file.write("")
+                file = open(file_name,"a")
+                for i in range(new_generations_modelled + 1):
+                    total = juvenile_population + adult_population + senile_population
+                    juvenile_population = juvenile_population * juvenile_survival_rate
+                    adult_population = adult_population * adult_survival_rate
+                    senile_population = senile_population * senile_survival_rate
+                    atemp = adult_population
+
+                    senile_population = senile_population + adult_population
+                    adult_population = juvenile_population
+
+                    juvenile_population = atemp * birth_rate
+
+                    file.write(str(i) + "," + str(juvenile_population) + "," + str(adult_population) + "," + str(senile_population) + "," + str(total) + "\n")
+                export = False
+
+
+
+
